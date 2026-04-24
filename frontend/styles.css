@@ -1,11 +1,13 @@
 :root {
   --bg: #0b1220;
+  --panel: #0f1930;
   --card: #111b31;
   --text: #eaf0ff;
   --muted: rgba(234, 240, 255, 0.7);
   --border: rgba(234, 240, 255, 0.12);
   --accent: #7ae7c7;
   --danger: #ff6b6b;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
 }
 
 * {
@@ -37,6 +39,138 @@ body {
   color: var(--muted);
 }
 
+.appShell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  width: 100%;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 18px;
+  border-right: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 86%, black 14%);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.brand {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.brandTitle {
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.brandSubtitle {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.nav {
+  display: grid;
+  gap: 8px;
+}
+
+.navLink {
+  color: var(--text);
+  text-decoration: none;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.navLink:hover {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border) 72%);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebarFooter {
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+}
+
+.content {
+  padding: 22px 18px 56px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.content > * {
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.pageTitle {
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+.profileBox {
+  min-width: 320px;
+  max-width: 520px;
+}
+
+.profileLabel {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 980px) {
+  .appShell {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: relative;
+    height: auto;
+    box-shadow: none;
+  }
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+  .profileBox {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    flex-direction: column;
+  }
+  .profileBox {
+    width: 100%;
+    max-width: none;
+  }
+}
+
 .card {
   background: color-mix(in srgb, var(--card) 86%, black 14%);
   border: 1px solid var(--border);
@@ -49,9 +183,31 @@ body {
   font-size: 18px;
 }
 
+.cardHead {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.cardHead h2 {
+  margin: 0;
+}
+
 .form {
   display: grid;
   gap: 10px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
 }
 
 label {
@@ -70,7 +226,20 @@ input {
   outline: none;
 }
 
+select {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  padding: 10px 12px;
+  outline: none;
+}
+
 input:focus {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border) 60%);
+}
+
+select:focus {
   border-color: color-mix(in srgb, var(--accent) 40%, var(--border) 60%);
 }
 
@@ -94,6 +263,24 @@ button:hover {
   flex-wrap: wrap;
 }
 
+.btn {
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border) 65%);
+  background: color-mix(in srgb, var(--accent) 20%, transparent 80%);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: color-mix(in srgb, var(--accent) 28%, transparent 72%);
+}
+
+.btn.secondary {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
 .link {
   color: var(--accent);
   text-decoration: none;
@@ -112,4 +299,41 @@ button:hover {
 .status.error {
   border-color: color-mix(in srgb, var(--danger) 45%, var(--border) 55%);
   color: color-mix(in srgb, var(--danger) 80%, var(--text) 20%);
+}
+
+.tableWrap {
+  width: 100%;
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 0;
+}
+
+.table th,
+.table td {
+  word-break: break-word;
+}
+
+.table th,
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+.table th {
+  color: var(--muted);
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
 }

@@ -3,25 +3,159 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Farming Monitor - App</title>
+    <title>Farming Monitor</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="container">
-      <header class="header">
-        <h1>Farming Monitor</h1>
-        <p class="muted">Protected page (requires login)</p>
-      </header>
-
-      <section class="card">
-        <h2>My profile</h2>
-        <pre id="me" class="status">Loading…</pre>
-        <div class="row">
-          <a class="link" href="./index.html">Back</a>
-          <button id="logoutBtn" type="button">Logout</button>
+    <div class="appShell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brandTitle">Farming Monitor</div>
+          <div class="brandSubtitle">Farmer</div>
         </div>
-      </section>
-    </main>
+        <nav class="nav">
+          <a class="navLink" href="#tasks">Tasks</a>
+          <a class="navLink" href="#requests">Requests</a>
+          <a class="navLink" href="#inventory">Inventory</a>
+          <a class="navLink" href="#status">Farm status</a>
+        </nav>
+        <div class="sidebarFooter">
+          <button id="logoutBtn" type="button" class="btn secondary">Logout</button>
+          <a class="link" href="./index.html">Back to login</a>
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <h1 class="pageTitle">Dashboard</h1>
+            <p class="muted">Your tasks, inventory, and farm updates.</p>
+          </div>
+          <div class="profileBox">
+            <div class="profileLabel">Signed in as</div>
+            <pre id="me" class="status">Loading…</pre>
+          </div>
+        </header>
+
+        <section class="grid2">
+          <section class="card" id="tasks">
+            <div class="cardHead">
+              <h2>Tasks assigned by admin</h2>
+              <p class="muted">What you need to do next.</p>
+            </div>
+            <div class="tableWrap">
+              <table class="table" id="tasksTable">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Assigned</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card" id="requests">
+            <div class="cardHead">
+              <h2>Requests to admin</h2>
+              <p class="muted">Ask for seeds, help, tools, etc.</p>
+            </div>
+            <form id="requestForm" class="form">
+              <div class="formRow">
+                <label>
+                  Subject
+                  <input name="subject" required />
+                </label>
+                <label>
+                  Message
+                  <input name="message" required />
+                </label>
+              </div>
+              <button type="submit" class="btn">Send request</button>
+            </form>
+            <div class="tableWrap" style="margin-top: 12px">
+              <table class="table" id="requestsTable">
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Message</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card" id="inventory">
+            <div class="cardHead">
+              <h2>Inventory (seeds)</h2>
+              <p class="muted">Track seed types and quantities.</p>
+            </div>
+            <form id="inventoryForm" class="form">
+              <div class="formRow">
+                <label>
+                  Seed type
+                  <input name="seed_type" placeholder="e.g. Wheat" required />
+                </label>
+                <label>
+                  Quantity
+                  <input name="quantity" type="number" step="1" min="0" required />
+                </label>
+              </div>
+              <button type="submit" class="btn">Save</button>
+            </form>
+            <div class="tableWrap" style="margin-top: 12px">
+              <table class="table" id="inventoryTable">
+                <thead>
+                  <tr>
+                    <th>Seed type</th>
+                    <th>Quantity</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card" id="status">
+            <div class="cardHead">
+              <h2>Farm status</h2>
+              <p class="muted">Update health, crop type, and moisture.</p>
+            </div>
+            <form id="farmStatusForm" class="form">
+              <div class="formRow">
+                <label>
+                  Health
+                  <select name="health" required>
+                    <option value="good" selected>Good</option>
+                    <option value="needs_treatment">Needs treatment</option>
+                  </select>
+                </label>
+                <label>
+                  Crop type
+                  <input name="crop_type" placeholder="e.g. Corn" />
+                </label>
+              </div>
+              <div class="formRow">
+                <label>
+                  Moisture (%)
+                  <input name="moisture_percent" type="number" min="0" max="100" step="1" required />
+                </label>
+                <div></div>
+              </div>
+              <button type="submit" class="btn">Update status</button>
+            </form>
+            <p id="farmStatusMsg" class="muted" style="margin-top: 10px"></p>
+          </section>
+        </section>
+      </main>
+    </div>
 
     <script src="./app.js"></script>
   </body>

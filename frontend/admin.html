@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Farming Monitor - Admin</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="appShell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brandTitle">Farming Monitor</div>
+          <div class="brandSubtitle">Admin</div>
+        </div>
+        <nav class="nav">
+          <a class="navLink" href="#overview">Overview</a>
+          <a class="navLink" href="#assign">Assign task</a>
+          <a class="navLink" href="#requests">Requests</a>
+          <a class="navLink" href="#status">Farm status</a>
+        </nav>
+        <div class="sidebarFooter">
+          <button id="logoutBtn" type="button" class="btn secondary">Logout</button>
+          <a class="link" href="/app">Go to farmer page</a>
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <h1 class="pageTitle">Admin Panel</h1>
+            <p class="muted">Farmers, requests, and farm status at a glance.</p>
+          </div>
+          <div class="profileBox">
+            <div class="profileLabel">Signed in as</div>
+            <pre id="me" class="status">Loading…</pre>
+          </div>
+        </header>
+
+        <section class="grid2">
+          <section class="card" id="overview">
+            <div class="cardHead">
+              <h2>Farmers</h2>
+              <p class="muted">All registered farmer accounts.</p>
+            </div>
+            <div class="tableWrap">
+              <table class="table" id="farmersTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card" id="assign">
+            <div class="cardHead">
+              <h2>Assign a task</h2>
+              <p class="muted">Send work items to a farmer.</p>
+            </div>
+            <form id="assignTaskForm" class="form">
+              <label>
+                Farmer
+                <select name="farmer_id" id="farmerSelect" required></select>
+              </label>
+              <label>
+                Title
+                <input name="title" required />
+              </label>
+              <label>
+                Description
+                <input name="description" />
+              </label>
+              <button type="submit" class="btn">Assign</button>
+            </form>
+          </section>
+
+          <section class="card" id="requests">
+            <div class="cardHead">
+              <h2>Farmers' requests</h2>
+              <p class="muted">Messages sent by farmers.</p>
+            </div>
+            <div class="tableWrap">
+              <table class="table" id="adminRequestsTable">
+                <thead>
+                  <tr>
+                    <th>Farmer</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Message</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card" id="status">
+            <div class="cardHead">
+              <h2>Farm status overview</h2>
+              <p class="muted">Latest updates per farmer.</p>
+            </div>
+            <div class="tableWrap">
+              <table class="table" id="farmStatusTable">
+                <thead>
+                  <tr>
+                    <th>Farmer</th>
+                    <th>Health</th>
+                    <th>Crop type</th>
+                    <th>Moisture</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -11,6 +11,25 @@ function setStatus(text, isError = false) {
   el.classList.toggle("error", isError);
 }
 
+function renderMe(me) {
+  const el = qs("#me");
+  if (!el) return;
+  const name = me?.name ? String(me.name) : "Unknown";
+  const email = me?.email ? String(me.email) : "";
+  const role = me?.role ? String(me.role) : "";
+  el.textContent = [name, email && `<${email}>`, role && `(${role})`].filter(Boolean).join(" ");
+  el.classList.remove("error");
+}
+
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 async function api(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
@@ -31,9 +50,152 @@ async function api(path, options = {}) {
 async function refreshStatus() {
   try {
     const me = await api("/api/me");
-    setStatus(JSON.stringify({ authenticated: true, me }, null, 2));
+    if (qs("#me")) {
+      renderMe(me);
+    } else {
+      setStatus(JSON.stringify({ authenticated: true, me }, null, 2));
+    }
   } catch (e) {
-    setStatus(JSON.stringify({ authenticated: false, error: e.message }, null, 2), true);
+    if (qs("#me")) {
+      setStatus(`Not authenticated (${e.message})`, true);
+    } else {
+      setStatus(JSON.stringify({ authenticated: false, error: e.message }, null, 2), true);
+    }
+  }
+}
+
+async function loadFarmerDashboard() {
+  // Tasks
+  const tasksTbody = qs("#tasksTable tbody");
+  if (tasksTbody) {
+    const tasks = await api("/api/farmer/tasks");
+    tasksTbody.innerHTML =
+      tasks.length === 0
+        ? `<tr><td colspan="4" class="muted">No tasks yet.</td></tr>`
+        : tasks
+            .map(
+              (t) => `<tr>
+  <td>${escapeHtml(t.title)}</td>
+  <td>${escapeHtml(t.status)}</td>
+  <td>${escapeHtml(t.assigned_at || "-")}</td>
+  <td>${escapeHtml(t.description || "")}</td>
+</tr>`
+            )
+            .join("");
+  }
+
+  // Requests list
+  const reqTbody = qs("#requestsTable tbody");
+  if (reqTbody) {
+    const reqs = await api("/api/farmer/requests");
+    reqTbody.innerHTML =
+      reqs.length === 0
+        ? `<tr><td colspan="4" class="muted">No requests yet.</td></tr>`
+        : reqs
+            .map(
+              (r) => `<tr>
+  <td>${escapeHtml(r.subject)}</td>
+  <td>${escapeHtml(r.status)}</td>
+  <td>${escapeHtml(r.created_at)}</td>
+  <td>${escapeHtml(r.message)}</td>
+</tr>`
+            )
+            .join("");
+  }
+
+  // Inventory list
+  const invTbody = qs("#inventoryTable tbody");
+  if (invTbody) {
+    const inv = await api("/api/farmer/inventory");
+    invTbody.innerHTML =
+      inv.length === 0
+        ? `<tr><td colspan="3" class="muted">No inventory yet.</td></tr>`
+        : inv
+            .map(
+              (i) => `<tr>
+  <td>${escapeHtml(i.seed_type)}</td>
+  <td>${escapeHtml(i.quantity)}</td>
+  <td>${escapeHtml(i.updated_at)}</td>
+</tr>`
+            )
+            .join("");
+  }
+
+  // Farm status form values
+  const fsForm = qs("#farmStatusForm");
+  if (fsForm) {
+    const status = await api("/api/farmer/farm-status");
+    fsForm.elements.health.value = status.health || "good";
+    fsForm.elements.crop_type.value = status.crop_type || "";
+    fsForm.elements.moisture_percent.value = status.moisture_percent ?? 0;
+  }
+}
+
+async function loadAdminDashboard() {
+  const farmers = await api("/api/admin/farmers");
+
+  const farmerSelect = qs("#farmerSelect");
+  if (farmerSelect) {
+    farmerSelect.innerHTML =
+      farmers.length === 0
+        ? `<option value="">No farmers yet</option>`
+        : farmers
+            .map((f) => `<option value="${escapeHtml(f.id)}">${escapeHtml(f.name)} (${escapeHtml(f.email)})</option>`)
+            .join("");
+  }
+
+  const farmersTbody = qs("#farmersTable tbody");
+  if (farmersTbody) {
+    farmersTbody.innerHTML =
+      farmers.length === 0
+        ? `<tr><td colspan="3" class="muted">No farmers yet.</td></tr>`
+        : farmers
+            .map(
+              (f) => `<tr>
+  <td>${escapeHtml(f.name)}</td>
+  <td>${escapeHtml(f.email)}</td>
+  <td>${escapeHtml(f.created_at)}</td>
+</tr>`
+            )
+            .join("");
+  }
+
+  const reqTbody = qs("#adminRequestsTable tbody");
+  if (reqTbody) {
+    const reqs = await api("/api/admin/requests");
+    reqTbody.innerHTML =
+      reqs.length === 0
+        ? `<tr><td colspan="5" class="muted">No requests yet.</td></tr>`
+        : reqs
+            .map(
+              (r) => `<tr>
+  <td>${escapeHtml(r.farmer_name)} (${escapeHtml(r.farmer_email)})</td>
+  <td>${escapeHtml(r.subject)}</td>
+  <td>${escapeHtml(r.status)}</td>
+  <td>${escapeHtml(r.created_at)}</td>
+  <td>${escapeHtml(r.message)}</td>
+</tr>`
+            )
+            .join("");
+  }
+
+  const fsTbody = qs("#farmStatusTable tbody");
+  if (fsTbody) {
+    const statuses = await api("/api/admin/farm-status");
+    fsTbody.innerHTML =
+      statuses.length === 0
+        ? `<tr><td colspan="5" class="muted">No farmers yet.</td></tr>`
+        : statuses
+            .map(
+              (s) => `<tr>
+  <td>${escapeHtml(s.farmer_name)} (${escapeHtml(s.farmer_email)})</td>
+  <td>${escapeHtml(s.health || "-")}</td>
+  <td>${escapeHtml(s.crop_type || "")}</td>
+  <td>${escapeHtml(s.moisture_percent != null ? `${s.moisture_percent}%` : "-")}</td>
+  <td>${escapeHtml(s.updated_at || "-")}</td>
+</tr>`
+            )
+            .join("");
   }
 }
 
@@ -83,7 +245,12 @@ async function init() {
             password: fd.get("password"),
           }),
         });
-        setStatus(JSON.stringify({ loggedIn: true, user }, null, 2));
+        // Redirect based on server-side role from DB
+        if (user?.role === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/app";
+        }
       } catch (e) {
         setStatus(JSON.stringify({ loggedIn: false, error: e.message }, null, 2), true);
       }
@@ -105,7 +272,95 @@ async function init() {
     });
   }
 
-  await refreshStatus();
+  if (qs("#status") || qs("#me")) {
+    await refreshStatus();
+  }
+
+  // Farmer dashboard interactions
+  const requestForm = qs("#requestForm");
+  if (requestForm) {
+    requestForm.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const fd = new FormData(requestForm);
+      await api("/api/farmer/requests", {
+        method: "POST",
+        body: JSON.stringify({ subject: fd.get("subject"), message: fd.get("message") }),
+      });
+      requestForm.reset();
+      await loadFarmerDashboard();
+    });
+  }
+
+  const inventoryForm = qs("#inventoryForm");
+  if (inventoryForm) {
+    inventoryForm.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const fd = new FormData(inventoryForm);
+      await api("/api/farmer/inventory", {
+        method: "POST",
+        body: JSON.stringify({
+          seed_type: fd.get("seed_type"),
+          quantity: Number(fd.get("quantity")),
+        }),
+      });
+      inventoryForm.reset();
+      await loadFarmerDashboard();
+    });
+  }
+
+  const farmStatusForm = qs("#farmStatusForm");
+  if (farmStatusForm) {
+    farmStatusForm.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const fd = new FormData(farmStatusForm);
+      const msg = qs("#farmStatusMsg");
+      const btn = farmStatusForm.querySelector('button[type="submit"]');
+      if (msg) msg.textContent = "";
+      if (btn) btn.disabled = true;
+      try {
+        await api("/api/farmer/farm-status", {
+          method: "PUT",
+          body: JSON.stringify({
+            health: fd.get("health"),
+            crop_type: fd.get("crop_type"),
+            moisture_percent: Number(fd.get("moisture_percent")),
+          }),
+        });
+        await loadFarmerDashboard();
+        if (msg) msg.textContent = "Saved farm status.";
+      } catch (e) {
+        if (msg) msg.textContent = `Failed to save: ${e.message}`;
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+  }
+
+  if (qs("#tasksTable") || qs("#inventoryTable") || qs("#requestsTable") || qs("#farmStatusForm")) {
+    await loadFarmerDashboard();
+  }
+
+  const assignTaskForm = qs("#assignTaskForm");
+  if (assignTaskForm) {
+    assignTaskForm.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const fd = new FormData(assignTaskForm);
+      await api("/api/admin/tasks", {
+        method: "POST",
+        body: JSON.stringify({
+          farmer_id: Number(fd.get("farmer_id")),
+          title: fd.get("title"),
+          description: fd.get("description"),
+        }),
+      });
+      assignTaskForm.reset();
+      await loadAdminDashboard();
+    });
+  }
+
+  if (qs("#farmersTable") || qs("#adminRequestsTable") || qs("#farmStatusTable")) {
+    await loadAdminDashboard();
+  }
 }
 
 init();
