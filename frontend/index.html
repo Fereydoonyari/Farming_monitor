@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Farming Monitor - Login</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>Farming Monitor</h1>
+        <p class="muted">v1: Register + Login (Flask + MySQL)</p>
+      </header>
+
+      <section class="card">
+        <h2>Create account</h2>
+        <form id="registerForm" class="form">
+          <label>
+            Name
+            <input name="name" autocomplete="name" required />
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" minlength="6" autocomplete="new-password" required />
+          </label>
+          <button type="submit">Register</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Login</h2>
+        <form id="loginForm" class="form">
+          <label>
+            Email
+            <input name="email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit">Login</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Status</h2>
+        <pre id="status" class="status">Checking backend…</pre>
+        <div class="row">
+          <button id="meBtn" type="button">Who am I?</button>
+          <button id="logoutBtn" type="button">Logout</button>
+          <a class="link" href="./app.html">Go to app</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
