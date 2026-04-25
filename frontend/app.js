@@ -4,22 +4,7 @@ function qs(sel) {
   return document.querySelector(sel);
 }
 
-function setStatus(text, isError = false) {
-  const el = qs("#statusOutput") || qs("#me");
-  if (!el) return;
-  el.textContent = text;
-  el.classList.toggle("error", isError);
-}
-
-function renderMe(me) {
-  const el = qs("#me");
-  if (!el) return;
-  const name = me?.name ? String(me.name) : "Unknown";
-  const email = me?.email ? String(me.email) : "";
-  const role = me?.role ? String(me.role) : "";
-  el.textContent = [name, email && `<${email}>`, role && `(${role})`].filter(Boolean).join(" ");
-  el.classList.remove("error");
-}
+function setStatus(_text, _isError = false) {}
 
 function escapeHtml(s) {
   return String(s ?? "")
@@ -49,13 +34,10 @@ async function api(path, options = {}) {
 
 async function refreshStatus() {
   try {
-    const me = await api("/api/me");
-    if (qs("#me")) {
-      renderMe(me);
-    }
+    await api("/api/me");
   } catch (e) {
     // If a user hits /app or /admin without a session, go to login silently.
-    if (qs("#me")) window.location.href = "/";
+    window.location.href = "/";
   }
 }
 
@@ -66,10 +48,13 @@ async function loadFarmerDashboard() {
     const tasks = await api("/api/farmer/tasks");
     tasksTbody.innerHTML =
       tasks.length === 0
-        ? `<tr><td colspan="4" class="muted">No tasks yet.</td></tr>`
+        ? `<tr><td colspan="5" class="muted">No tasks yet.</td></tr>`
         : tasks
             .map(
               (t) => `<tr>
+  <td>
+    <input type="checkbox" data-task-done="${escapeHtml(t.id)}" ${t.status === "done" ? "checked" : ""} />
+  </td>
   <td>${escapeHtml(t.title)}</td>
   <td>${escapeHtml(t.status)}</td>
   <td>${escapeHtml(t.assigned_at || "-")}</td>
@@ -214,10 +199,7 @@ async function init() {
   try {
     await api("/api/health", { method: "GET" });
   } catch (e) {
-    setStatus(
-      `Backend not reachable.\n\n- Start Flask at ${API_BASE}\n- Then refresh\n\nError: ${e.message}`,
-      true
-    );
+    // no notifications
     return;
   }
 
@@ -235,9 +217,8 @@ async function init() {
             password: fd.get("password"),
           }),
         });
-        setStatus(JSON.stringify({ registered: true, user }, null, 2));
       } catch (e) {
-        setStatus(JSON.stringify({ registered: false, error: e.message }, null, 2), true);
+        // no notifications
       }
     });
   }
@@ -247,6 +228,8 @@ async function init() {
     loginForm.addEventListener("submit", async (ev) => {
       ev.preventDefault();
       const fd = new FormData(loginForm);
+      const loginError = qs("#loginError");
+      if (loginError) loginError.textContent = "";
       try {
         const user = await api("/api/login", {
           method: "POST",
@@ -262,7 +245,7 @@ async function init() {
           window.location.href = "/app";
         }
       } catch (e) {
-        setStatus(JSON.stringify({ loggedIn: false, error: e.message }, null, 2), true);
+        if (loginError) loginError.textContent = "there is no user with this passsword";
       }
     });
   }
@@ -277,7 +260,7 @@ async function init() {
         await api("/api/logout", { method: "POST", body: JSON.stringify({}) });
         window.location.href = "/";
       } catch (e) {
-        setStatus(`Logout failed (${e.message})`, true);
+        // no notifications
       }
     });
   }
@@ -345,6 +328,24 @@ async function init() {
 
   if (qs("#tasksTable") || qs("#inventoryTable") || qs("#requestsTable") || qs("#farmStatusForm")) {
     await loadFarmerDashboard();
+  }
+
+  // Farmer: mark task done
+  const tasksTable = qs("#tasksTable");
+  if (tasksTable) {
+    tasksTable.addEventListener("change", async (ev) => {
+      const t = ev.target;
+      if (!(t instanceof HTMLInputElement)) return;
+      const taskId = t.getAttribute("data-task-done");
+      if (!taskId) return;
+      if (!t.checked) {
+        // Keep it simple: only support marking done, not un-done.
+        t.checked = true;
+        return;
+      }
+      await api(`/api/farmer/tasks/${taskId}/done`, { method: "POST", body: JSON.stringify({}) });
+      await loadFarmerDashboard();
+    });
   }
 
   // Inventory actions (edit/delete)

@@ -162,7 +162,7 @@ def create_app():
                 """
                 SELECT id, title, description, status, assigned_at
                 FROM tasks
-                WHERE farmer_id=%s
+                WHERE farmer_id=%s AND status='pending'
                 ORDER BY assigned_at DESC, id DESC
                 """,
                 (user["id"],),
@@ -172,6 +172,25 @@ def create_app():
                 r["id"] = int(r["id"])
                 r["assigned_at"] = r["assigned_at"].isoformat()
             return jsonify(rows)
+        finally:
+            conn.close()
+
+    @app.post("/api/farmer/tasks/<int:task_id>/done")
+    def farmer_mark_task_done(task_id: int):
+        user, err = _require_farmer()
+        if err:
+            return err
+        conn = get_db()
+        try:
+            cur = conn.cursor(dictionary=True)
+            cur.execute(
+                "UPDATE tasks SET status='done' WHERE id=%s AND farmer_id=%s",
+                (task_id, user["id"]),
+            )
+            conn.commit()
+            if cur.rowcount == 0:
+                return jsonify({"error": "task not found"}), 404
+            return jsonify({"ok": True})
         finally:
             conn.close()
 

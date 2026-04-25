@@ -14,13 +14,8 @@
             <h1 class="pageTitle">Dashboard</h1>
             <p class="muted">Your tasks, inventory, and farm updates.</p>
           </div>
-          <div class="profileBox">
-            <div class="profileLabel">Signed in as</div>
-            <div id="me" class="meChip">Loading…</div>
-            <div class="row" style="margin-top: 10px">
-              <button id="logoutBtn" type="button" class="btn secondary">Logout</button>
-              <a class="link" href="./index.html">Back to login</a>
-            </div>
+          <div class="row">
+            <button id="logoutBtn" type="button" class="btn secondary">Logout</button>
           </div>
         </header>
 
@@ -34,6 +29,7 @@
               <table class="table" id="tasksTable">
                 <thead>
                   <tr>
+                    <th>Done</th>
                     <th>Title</th>
                     <th>Status</th>
                     <th>Assigned</th>

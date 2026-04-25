@@ -11,10 +11,8 @@
       <aside class="authBrand">
         <h1 class="authBrandTitle">Farming Monitor</h1>
         <p class="authBrandText">
-          Simple farming management dashboard for your web dev course: farmers manage inventory + farm status, and admins
-          assign tasks and monitor farms.
+          Simple farming management dashboard
         </p>
-        <p class="authBrandText">Tip: set admins by updating `users.role` in MySQL.</p>
       </aside>
 
       <main class="authMain">
@@ -22,7 +20,7 @@
           <section class="card">
             <div class="cardHead">
               <h2>Create account</h2>
-              <p class="muted">New users are farmers by default.</p>
+              <p class="muted">Register as a farmer</p>
             </div>
             <form id="registerForm" class="form">
               <label>
@@ -44,7 +42,6 @@
           <section class="card">
             <div class="cardHead">
               <h2>Login</h2>
-              <p class="muted">You’ll be routed to farmer/admin automatically.</p>
             </div>
             <form id="loginForm" class="form">
               <label>
@@ -56,6 +53,7 @@
                 <input name="password" type="password" autocomplete="current-password" required />
               </label>
               <button type="submit" class="btn">Login</button>
+              <p id="loginError" class="errorText" style="margin: 0"></p>
             </form>
           </section>
         </div>
