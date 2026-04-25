@@ -13,7 +13,7 @@ load_dotenv()
 def create_app():
     frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
     app = Flask(__name__, static_folder=frontend_dir, static_url_path="")
-    app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+    app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
 
     ensure_schema()
 
@@ -279,6 +279,53 @@ def create_app():
         finally:
             conn.close()
 
+    @app.put("/api/farmer/inventory/<int:item_id>")
+    def farmer_update_inventory_item(item_id: int):
+        user, err = _require_farmer()
+        if err:
+            return err
+        data = request.get_json(silent=True) or {}
+        quantity = data.get("quantity")
+        if quantity is None:
+            return jsonify({"error": "quantity is required"}), 400
+        try:
+            quantity_int = int(quantity)
+        except Exception:
+            return jsonify({"error": "quantity must be an integer"}), 400
+        if quantity_int < 0:
+            return jsonify({"error": "quantity must be >= 0"}), 400
+
+        conn = get_db()
+        try:
+            cur = conn.cursor(dictionary=True)
+            cur.execute(
+                "UPDATE inventory SET quantity=%s WHERE id=%s AND farmer_id=%s",
+                (quantity_int, item_id, user["id"]),
+            )
+            conn.commit()
+            if cur.rowcount == 0:
+                return jsonify({"error": "inventory item not found"}), 404
+            return jsonify({"ok": True})
+        finally:
+            conn.close()
+
+    @app.delete("/api/farmer/inventory/<int:item_id>")
+    def farmer_delete_inventory_item(item_id: int):
+        user, err = _require_farmer()
+        if err:
+            return err
+
+        conn = get_db()
+        try:
+            cur = conn.cursor(dictionary=True)
+            cur.execute("DELETE FROM inventory WHERE id=%s AND farmer_id=%s", (item_id, user["id"]))
+            conn.commit()
+            if cur.rowcount == 0:
+                return jsonify({"error": "inventory item not found"}), 404
+            return jsonify({"ok": True})
+        finally:
+            conn.close()
+
     @app.get("/api/farmer/farm-status")
     def farmer_get_farm_status():
         user, err = _require_farmer()
@@ -386,6 +433,7 @@ def create_app():
                        u.id AS farmer_id, u.name AS farmer_name, u.email AS farmer_email
                 FROM requests r
                 JOIN users u ON u.id = r.farmer_id
+                WHERE r.status='open'
                 ORDER BY r.created_at DESC, r.id DESC
                 """
             )
@@ -395,6 +443,22 @@ def create_app():
                 r["farmer_id"] = int(r["farmer_id"])
                 r["created_at"] = r["created_at"].isoformat()
             return jsonify(rows)
+        finally:
+            conn.close()
+
+    @app.post("/api/admin/requests/<int:request_id>/done")
+    def admin_mark_request_done(request_id: int):
+        _, err = _require_admin()
+        if err:
+            return err
+        conn = get_db()
+        try:
+            cur = conn.cursor(dictionary=True)
+            cur.execute("UPDATE requests SET status='approved' WHERE id=%s", (request_id,))
+            conn.commit()
+            if cur.rowcount == 0:
+                return jsonify({"error": "request not found"}), 404
+            return jsonify({"ok": True})
         finally:
             conn.close()
 

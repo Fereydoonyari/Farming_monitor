@@ -8,23 +8,6 @@
   </head>
   <body>
     <div class="appShell">
-      <aside class="sidebar">
-        <div class="brand">
-          <div class="brandTitle">Farming Monitor</div>
-          <div class="brandSubtitle">Farmer</div>
-        </div>
-        <nav class="nav">
-          <a class="navLink" href="#tasks">Tasks</a>
-          <a class="navLink" href="#requests">Requests</a>
-          <a class="navLink" href="#inventory">Inventory</a>
-          <a class="navLink" href="#status">Farm status</a>
-        </nav>
-        <div class="sidebarFooter">
-          <button id="logoutBtn" type="button" class="btn secondary">Logout</button>
-          <a class="link" href="./index.html">Back to login</a>
-        </div>
-      </aside>
-
       <main class="content">
         <header class="topbar">
           <div>
@@ -33,7 +16,11 @@
           </div>
           <div class="profileBox">
             <div class="profileLabel">Signed in as</div>
-            <pre id="me" class="status">Loading…</pre>
+            <div id="me" class="meChip">Loading…</div>
+            <div class="row" style="margin-top: 10px">
+              <button id="logoutBtn" type="button" class="btn secondary">Logout</button>
+              <a class="link" href="./index.html">Back to login</a>
+            </div>
           </div>
         </header>
 
@@ -116,6 +103,7 @@
                     <th>Seed type</th>
                     <th>Quantity</th>
                     <th>Updated</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -151,7 +139,6 @@
               </div>
               <button type="submit" class="btn">Update status</button>
             </form>
-            <p id="farmStatusMsg" class="muted" style="margin-top: 10px"></p>
           </section>
         </section>
       </main>

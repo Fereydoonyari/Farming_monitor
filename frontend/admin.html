@@ -8,32 +8,14 @@
   </head>
   <body>
     <div class="appShell">
-      <aside class="sidebar">
-        <div class="brand">
-          <div class="brandTitle">Farming Monitor</div>
-          <div class="brandSubtitle">Admin</div>
-        </div>
-        <nav class="nav">
-          <a class="navLink" href="#overview">Overview</a>
-          <a class="navLink" href="#assign">Assign task</a>
-          <a class="navLink" href="#requests">Requests</a>
-          <a class="navLink" href="#status">Farm status</a>
-        </nav>
-        <div class="sidebarFooter">
-          <button id="logoutBtn" type="button" class="btn secondary">Logout</button>
-          <a class="link" href="/app">Go to farmer page</a>
-        </div>
-      </aside>
-
       <main class="content">
         <header class="topbar">
           <div>
             <h1 class="pageTitle">Admin Panel</h1>
             <p class="muted">Farmers, requests, and farm status at a glance.</p>
           </div>
-          <div class="profileBox">
-            <div class="profileLabel">Signed in as</div>
-            <pre id="me" class="status">Loading…</pre>
+          <div class="row">
+            <button id="logoutBtn" type="button" class="btn secondary">Logout</button>
           </div>
         </header>
 
@@ -88,6 +70,7 @@
               <table class="table" id="adminRequestsTable">
                 <thead>
                   <tr>
+                    <th>Done</th>
                     <th>Farmer</th>
                     <th>Subject</th>
                     <th>Status</th>

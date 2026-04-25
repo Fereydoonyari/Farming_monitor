@@ -7,45 +7,61 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="container">
-      <header class="header">
-        <h1>Farming Monitor</h1>
-      </header>
+    <div class="authShell">
+      <aside class="authBrand">
+        <h1 class="authBrandTitle">Farming Monitor</h1>
+        <p class="authBrandText">
+          Simple farming management dashboard for your web dev course: farmers manage inventory + farm status, and admins
+          assign tasks and monitor farms.
+        </p>
+        <p class="authBrandText">Tip: set admins by updating `users.role` in MySQL.</p>
+      </aside>
 
-      <section class="card">
-        <h2>Create account</h2>
-        <form id="registerForm" class="form">
-          <label>
-            Name
-            <input name="name" autocomplete="name" required />
-          </label>
-          <label>
-            Email
-            <input name="email" type="email" autocomplete="email" required />
-          </label>
-          <label>
-            Password
-            <input name="password" type="password" minlength="6" autocomplete="new-password" required />
-          </label>
-          <button type="submit">Register</button>
-        </form>
-      </section>
+      <main class="authMain">
+        <div class="authGrid">
+          <section class="card">
+            <div class="cardHead">
+              <h2>Create account</h2>
+              <p class="muted">New users are farmers by default.</p>
+            </div>
+            <form id="registerForm" class="form">
+              <label>
+                Name
+                <input name="name" autocomplete="name" required />
+              </label>
+              <label>
+                Email
+                <input name="email" type="email" autocomplete="email" required />
+              </label>
+              <label>
+                Password
+                <input name="password" type="password" minlength="6" autocomplete="new-password" required />
+              </label>
+              <button type="submit" class="btn">Register</button>
+            </form>
+          </section>
 
-      <section class="card">
-        <h2>Login</h2>
-        <form id="loginForm" class="form">
-          <label>
-            Email
-            <input name="email" type="email" autocomplete="email" required />
-          </label>
-          <label>
-            Password
-            <input name="password" type="password" autocomplete="current-password" required />
-          </label>
-          <button type="submit">Login</button>
-        </form>
-      </section>
-    </main>
+          <section class="card">
+            <div class="cardHead">
+              <h2>Login</h2>
+              <p class="muted">You’ll be routed to farmer/admin automatically.</p>
+            </div>
+            <form id="loginForm" class="form">
+              <label>
+                Email
+                <input name="email" type="email" autocomplete="email" required />
+              </label>
+              <label>
+                Password
+                <input name="password" type="password" autocomplete="current-password" required />
+              </label>
+              <button type="submit" class="btn">Login</button>
+            </form>
+          </section>
+        </div>
+
+      </main>
+    </div>
 
     <script src="./app.js"></script>
   </body>

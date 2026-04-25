@@ -5,7 +5,7 @@ function qs(sel) {
 }
 
 function setStatus(text, isError = false) {
-  const el = qs("#status") || qs("#me");
+  const el = qs("#statusOutput") || qs("#me");
   if (!el) return;
   el.textContent = text;
   el.classList.toggle("error", isError);
@@ -52,15 +52,10 @@ async function refreshStatus() {
     const me = await api("/api/me");
     if (qs("#me")) {
       renderMe(me);
-    } else {
-      setStatus(JSON.stringify({ authenticated: true, me }, null, 2));
     }
   } catch (e) {
-    if (qs("#me")) {
-      setStatus(`Not authenticated (${e.message})`, true);
-    } else {
-      setStatus(JSON.stringify({ authenticated: false, error: e.message }, null, 2), true);
-    }
+    // If a user hits /app or /admin without a session, go to login silently.
+    if (qs("#me")) window.location.href = "/";
   }
 }
 
@@ -109,13 +104,27 @@ async function loadFarmerDashboard() {
     const inv = await api("/api/farmer/inventory");
     invTbody.innerHTML =
       inv.length === 0
-        ? `<tr><td colspan="3" class="muted">No inventory yet.</td></tr>`
+        ? `<tr><td colspan="4" class="muted">No inventory yet.</td></tr>`
         : inv
             .map(
               (i) => `<tr>
   <td>${escapeHtml(i.seed_type)}</td>
-  <td>${escapeHtml(i.quantity)}</td>
+  <td>
+    <input
+      data-inv-qty
+      data-inv-id="${escapeHtml(i.id)}"
+      type="number"
+      min="0"
+      step="1"
+      value="${escapeHtml(i.quantity)}"
+      style="width: 120px"
+    />
+  </td>
   <td>${escapeHtml(i.updated_at)}</td>
+  <td class="row">
+    <button class="btn secondary" type="button" data-inv-save="${escapeHtml(i.id)}">Save</button>
+    <button class="btn secondary" type="button" data-inv-del="${escapeHtml(i.id)}">Delete</button>
+  </td>
 </tr>`
             )
             .join("");
@@ -165,10 +174,11 @@ async function loadAdminDashboard() {
     const reqs = await api("/api/admin/requests");
     reqTbody.innerHTML =
       reqs.length === 0
-        ? `<tr><td colspan="5" class="muted">No requests yet.</td></tr>`
+        ? `<tr><td colspan="6" class="muted">No requests yet.</td></tr>`
         : reqs
             .map(
               (r) => `<tr>
+  <td><input type="checkbox" data-req-done="${escapeHtml(r.id)}" /></td>
   <td>${escapeHtml(r.farmer_name)} (${escapeHtml(r.farmer_email)})</td>
   <td>${escapeHtml(r.subject)}</td>
   <td>${escapeHtml(r.status)}</td>
@@ -265,14 +275,14 @@ async function init() {
     logoutBtn.addEventListener("click", async () => {
       try {
         await api("/api/logout", { method: "POST", body: JSON.stringify({}) });
-        setStatus(JSON.stringify({ loggedOut: true }, null, 2));
+        window.location.href = "/";
       } catch (e) {
-        setStatus(JSON.stringify({ loggedOut: false, error: e.message }, null, 2), true);
+        setStatus(`Logout failed (${e.message})`, true);
       }
     });
   }
 
-  if (qs("#status") || qs("#me")) {
+  if (qs("#me")) {
     await refreshStatus();
   }
 
@@ -313,9 +323,7 @@ async function init() {
     farmStatusForm.addEventListener("submit", async (ev) => {
       ev.preventDefault();
       const fd = new FormData(farmStatusForm);
-      const msg = qs("#farmStatusMsg");
       const btn = farmStatusForm.querySelector('button[type="submit"]');
-      if (msg) msg.textContent = "";
       if (btn) btn.disabled = true;
       try {
         await api("/api/farmer/farm-status", {
@@ -327,9 +335,8 @@ async function init() {
           }),
         });
         await loadFarmerDashboard();
-        if (msg) msg.textContent = "Saved farm status.";
       } catch (e) {
-        if (msg) msg.textContent = `Failed to save: ${e.message}`;
+        // no notifications
       } finally {
         if (btn) btn.disabled = false;
       }
@@ -338,6 +345,34 @@ async function init() {
 
   if (qs("#tasksTable") || qs("#inventoryTable") || qs("#requestsTable") || qs("#farmStatusForm")) {
     await loadFarmerDashboard();
+  }
+
+  // Inventory actions (edit/delete)
+  const inventoryTable = qs("#inventoryTable");
+  if (inventoryTable) {
+    inventoryTable.addEventListener("click", async (ev) => {
+      const t = ev.target;
+      if (!(t instanceof HTMLElement)) return;
+
+      const saveId = t.getAttribute("data-inv-save");
+      if (saveId) {
+        const input = inventoryTable.querySelector(`input[data-inv-qty][data-inv-id="${CSS.escape(saveId)}"]`);
+        const qty = input ? Number(input.value) : NaN;
+        await api(`/api/farmer/inventory/${saveId}`, {
+          method: "PUT",
+          body: JSON.stringify({ quantity: qty }),
+        });
+        await loadFarmerDashboard();
+        return;
+      }
+
+      const delId = t.getAttribute("data-inv-del");
+      if (delId) {
+        if (!window.confirm("Delete this inventory item?")) return;
+        await api(`/api/farmer/inventory/${delId}`, { method: "DELETE" });
+        await loadFarmerDashboard();
+      }
+    });
   }
 
   const assignTaskForm = qs("#assignTaskForm");
@@ -360,6 +395,20 @@ async function init() {
 
   if (qs("#farmersTable") || qs("#adminRequestsTable") || qs("#farmStatusTable")) {
     await loadAdminDashboard();
+  }
+
+  // Admin: mark request done (checkbox)
+  const adminRequestsTable = qs("#adminRequestsTable");
+  if (adminRequestsTable) {
+    adminRequestsTable.addEventListener("change", async (ev) => {
+      const t = ev.target;
+      if (!(t instanceof HTMLInputElement)) return;
+      const reqId = t.getAttribute("data-req-done");
+      if (!reqId) return;
+      if (!t.checked) return;
+      await api(`/api/admin/requests/${reqId}/done`, { method: "POST", body: JSON.stringify({}) });
+      await loadAdminDashboard();
+    });
   }
 }
 
