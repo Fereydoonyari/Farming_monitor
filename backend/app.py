@@ -147,9 +147,6 @@ def create_app():
         finally:
             conn.close()
 
-    # --------------------------
-    # Farmer APIs (authenticated)
-    # --------------------------
     @app.get("/api/farmer/tasks")
     def farmer_tasks():
         user, err = _require_farmer()
@@ -416,9 +413,6 @@ def create_app():
         finally:
             conn.close()
 
-    # --------------------------
-    # Admin APIs (admin only)
-    # --------------------------
     @app.get("/api/admin/farmers")
     def admin_farmers():
         _, err = _require_admin()

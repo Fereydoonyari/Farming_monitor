@@ -1,6 +1,3 @@
--- Create database (run once)
--- CREATE DATABASE farming_monitor CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- USE farming_monitor;
 
 CREATE TABLE IF NOT EXISTS users (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

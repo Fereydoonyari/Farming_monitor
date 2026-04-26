@@ -36,13 +36,11 @@ async function refreshStatus() {
   try {
     await api("/api/me");
   } catch (e) {
-    // If a user hits /app or /admin without a session, go to login silently.
     window.location.href = "/";
   }
 }
 
 async function loadFarmerDashboard() {
-  // Tasks
   const tasksTbody = qs("#tasksTable tbody");
   if (tasksTbody) {
     const tasks = await api("/api/farmer/tasks");
@@ -115,7 +113,6 @@ async function loadFarmerDashboard() {
             .join("");
   }
 
-  // Farm status form values
   const fsForm = qs("#farmStatusForm");
   if (fsForm) {
     const status = await api("/api/farmer/farm-status");
@@ -195,11 +192,9 @@ async function loadAdminDashboard() {
 }
 
 async function init() {
-  // Health check
   try {
     await api("/api/health", { method: "GET" });
   } catch (e) {
-    // no notifications
     return;
   }
 
@@ -218,7 +213,7 @@ async function init() {
           }),
         });
       } catch (e) {
-        // no notifications
+
       }
     });
   }
@@ -238,7 +233,6 @@ async function init() {
             password: fd.get("password"),
           }),
         });
-        // Redirect based on server-side role from DB
         if (user?.role === "admin") {
           window.location.href = "/admin";
         } else {
@@ -260,7 +254,6 @@ async function init() {
         await api("/api/logout", { method: "POST", body: JSON.stringify({}) });
         window.location.href = "/";
       } catch (e) {
-        // no notifications
       }
     });
   }
@@ -269,7 +262,6 @@ async function init() {
     await refreshStatus();
   }
 
-  // Farmer dashboard interactions
   const requestForm = qs("#requestForm");
   if (requestForm) {
     requestForm.addEventListener("submit", async (ev) => {
@@ -319,7 +311,6 @@ async function init() {
         });
         await loadFarmerDashboard();
       } catch (e) {
-        // no notifications
       } finally {
         if (btn) btn.disabled = false;
       }
@@ -330,7 +321,6 @@ async function init() {
     await loadFarmerDashboard();
   }
 
-  // Farmer: mark task done
   const tasksTable = qs("#tasksTable");
   if (tasksTable) {
     tasksTable.addEventListener("change", async (ev) => {
@@ -339,7 +329,6 @@ async function init() {
       const taskId = t.getAttribute("data-task-done");
       if (!taskId) return;
       if (!t.checked) {
-        // Keep it simple: only support marking done, not un-done.
         t.checked = true;
         return;
       }
@@ -348,7 +337,6 @@ async function init() {
     });
   }
 
-  // Inventory actions (edit/delete)
   const inventoryTable = qs("#inventoryTable");
   if (inventoryTable) {
     inventoryTable.addEventListener("click", async (ev) => {
@@ -398,7 +386,6 @@ async function init() {
     await loadAdminDashboard();
   }
 
-  // Admin: mark request done (checkbox)
   const adminRequestsTable = qs("#adminRequestsTable");
   if (adminRequestsTable) {
     adminRequestsTable.addEventListener("change", async (ev) => {

@@ -19,12 +19,15 @@ body {
   color: var(--text);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 .muted {
   margin: 0;
   color: var(--muted);
 }
 
-/* Auth (login/register) */
 .authShell {
   min-height: 100vh;
   display: grid;
@@ -66,7 +69,6 @@ body {
   }
 }
 
-/* App layout */
 .appShell {
   min-height: 100vh;
 }
@@ -90,6 +92,28 @@ body {
   margin: 0 0 6px;
 }
 
+.topnav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.topnavLink {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.topnavLink:hover {
+  border-color: var(--primary);
+}
+
 .grid2 {
   display: grid;
   grid-template-columns: 1fr;
@@ -102,7 +126,6 @@ body {
   }
 }
 
-/* Cards / forms */
 .card {
   background: var(--card);
   border: 1px solid var(--border);

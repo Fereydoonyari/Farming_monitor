@@ -15,10 +15,6 @@ def get_db():
 
 
 def ensure_schema():
-    """
-    Safety net: create table if it doesn't exist.
-    Keep schema.sql as the source of truth; this is only for quick start.
-    """
     conn = get_db()
     try:
         cur = conn.cursor()
@@ -36,7 +32,6 @@ def ensure_schema():
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """
         )
-        # If the table existed from an earlier version, make sure role exists.
         cur.execute("SHOW COLUMNS FROM users LIKE 'role'")
         if cur.fetchone() is None:
             cur.execute("ALTER TABLE users ADD COLUMN role ENUM('admin','farmer') NOT NULL DEFAULT 'farmer' AFTER email")
@@ -56,7 +51,6 @@ def ensure_schema():
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """
         )
-        # If tasks existed from an earlier version, drop due_date if present.
         cur.execute("SHOW COLUMNS FROM tasks LIKE 'due_date'")
         if cur.fetchone() is not None:
             cur.execute("ALTER TABLE tasks DROP COLUMN due_date")
@@ -105,7 +99,6 @@ def ensure_schema():
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """
         )
-        # If farm_status existed from an earlier version, migrate columns.
         cur.execute("SHOW COLUMNS FROM farm_status LIKE 'health'")
         if cur.fetchone() is None:
             cur.execute(
